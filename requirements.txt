@@ -1,0 +1,6 @@
+click==7.1.2
+Flask==1.1.4
+spleeter==2.4.0
+MarkupSafe==1.1.1
+pydub==0.25.1
+ffmpeg-python==0.2.0
