@@ -39,3 +39,4 @@ jobs:
         image: containregis2.azurecr.io/my-python-app:latest
         dns-name-label: containregis2
         ports: 80
+        location: eastus
