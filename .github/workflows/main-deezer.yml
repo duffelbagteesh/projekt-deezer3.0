@@ -40,3 +40,6 @@ jobs:
         dns-name-label: containregis2
         ports: 80
         location: eastus
+        registry-login-server: containregis2.azurecr.io
+        registry-username: ${{ secrets.AZURE_CLIENT_ID }}
+        registry-password: ${{ secrets.AZURE_CLIENT_SECRET }}
