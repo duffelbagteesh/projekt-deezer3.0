@@ -34,8 +34,8 @@ jobs:
     - name: Deploy to Azure Container Instances
       uses: azure/aci-deploy@v1
       with:
-        resource_group: myResourceGroup
+        resource-group: myResourceGroup
         name: containregis2
         image: containregis2.azurecr.io/my-python-app:latest
-        dns_name_label: containregis2
+        dns-name-label: containregis2
         ports: 80
