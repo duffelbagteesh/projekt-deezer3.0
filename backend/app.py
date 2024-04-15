@@ -5,7 +5,7 @@ from pydub import AudioSegment
 import numpy as np
 from scipy.io import wavfile
 
-app = Flask(__name__, template_folder='../frontend/templates')
+app = Flask(__name__, template_folder='../frontend/templates', static_url_path='',static_folder='../public')
 split_audio_dir = os.path.join(os.getcwd(), 'public', 'tracks')
 app.config['upload_folder'] = os.path.join(os.getcwd(), 'public', 'uploads')
 
