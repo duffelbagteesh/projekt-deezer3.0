@@ -45,8 +45,8 @@ def split_audio():
     audio = audio.astype(np.float32) / 32767.0
 
     # mono to stereo
-    if audio.ndim == 1:
-        audio = np.repeat(audio[:, np.newaxis], 2, axis=1)
+    if audio.ndim == 2:
+        audio = audio[:, 0]
 
     # letting spleeter do the damn ting
     prediction = separator.separate(audio)
