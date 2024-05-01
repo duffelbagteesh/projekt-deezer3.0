@@ -35,6 +35,12 @@ def split_audio():
     # Convert audio file to bytes
     audio_bytes = io.BytesIO(audio_file.read())
 
+     # Convert MP3 to WAV using pydub
+    audio = AudioSegment.from_file(audio_bytes, format="mp3")
+    wav_bytes = io.BytesIO()
+    audio.export(wav_bytes, format="wav")
+    wav_bytes.seek(0)  # reset cursor to start of file
+    audio_bytes = wav_bytes
      # Load audio with scipy
     rate, audio = wavfile.read(audio_bytes)
 
