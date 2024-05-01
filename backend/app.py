@@ -6,6 +6,7 @@ import numpy as np
 from scipy.io import wavfile
 import io
 
+
 app = Flask(__name__, template_folder='../frontend/templates')
 split_audio_dir = os.path.join(os.getcwd(), 'public', 'tracks')
 app.config['upload_folder'] = os.path.join(os.getcwd(), 'public', 'uploads')
@@ -35,27 +36,21 @@ def split_audio():
     # Convert audio file to bytes
     audio_bytes = io.BytesIO(audio_file.read())
 
-     # Convert MP3 to WAV using pydub
+    # Convert MP3 to WAV using pydub
     audio = AudioSegment.from_file(audio_bytes, format="mp3")
     wav_bytes = io.BytesIO()
     audio.export(wav_bytes, format="wav")
-    wav_bytes.seek(0)  # reset cursor to start of file
-    audio_bytes = wav_bytes
-     # Load audio with scipy
-    rate, audio = wavfile.read(audio_bytes)
 
-    # Load with scipy ting
-    rate, audio = wavfile.read(audio_bytes)
+    # Save the WAV file to the temporary directory
+    wav_path = os.path.join(app.config['upload_folder'], 'audio.wav')
+    with open(wav_path, 'wb') as f:
+        f.write(wav_bytes.getvalue())
 
-    # Convert the audio to float32 for Spleeter
-    audio = audio.astype(np.float32) / 32767.0
+    # Perform audio separation
+    prediction = separator.separate_to_file(wav_path, split_audio_dir)
 
-    # mono to stereo
-    if audio.ndim == 1:
-        audio = np.repeat(audio[:, np.newaxis], 2, axis=1)
-
-    # letting spleeter do the damn ting
-    prediction = separator.separate(audio)
+    # Get the sample rate of the audio
+    rate, _ = wavfile.read(wav_path)
 
     # Export stemies to WAV files
     split_audio_files = {}
