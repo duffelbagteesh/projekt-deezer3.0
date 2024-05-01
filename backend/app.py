@@ -58,7 +58,8 @@ def split_audio():
     split_audio_files = {}
     for instrument, data in prediction.items():
         # Rescaling?
-        rescaled_data = np.int16(data * 32767)
+        data *= 32767.0
+        data = data.astype(np.int16)
 
         # Setting split audio length to original audio length
         target_length = len(audio)
