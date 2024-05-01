@@ -4,6 +4,7 @@ from spleeter.separator import Separator
 from pydub import AudioSegment
 import numpy as np
 from scipy.io import wavfile
+import io
 
 app = Flask(__name__, template_folder='../frontend/templates')
 split_audio_dir = os.path.join(os.getcwd(), 'public', 'tracks')
@@ -31,15 +32,14 @@ def split_audio():
     # get uploaded audio file
     audio_file = request.files['audioFile']
 
-    # Save to a temp location
-    temp_file = os.path.join(app.config['upload_folder'], 'uploaded_audio.mp3')
-    audio_file.save(temp_file)
+    # Convert audio file to bytes
+    audio_bytes = io.BytesIO(audio_file.read())
 
-    # Transcode MP3 to WAV
-    wav_path = mp3_to_wav(temp_file)
+     # Load audio with scipy
+    rate, audio = wavfile.read(audio_bytes)
 
     # Load with scipy ting
-    rate, audio = wavfile.read(wav_path)
+    rate, audio = wavfile.read(audio_bytes)
 
     # Convert the audio to float32 for Spleeter
     audio = audio.astype(np.float32) / 32767.0
@@ -50,9 +50,6 @@ def split_audio():
 
     # letting spleeter do the damn ting
     prediction = separator.separate(audio)
-
-    # magical place to hold our precious split audio files
-    os.makedirs(split_audio_dir, exist_ok=True)
 
     # Export stemies to WAV files
     split_audio_files = {}
