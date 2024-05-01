@@ -24,6 +24,7 @@ def index():
 def serve_static(filename):
     return send_from_directory(os.path.join(os.getcwd(), 'public'), filename)
 
+separator = Separator('spleeter:4stems')
 
 @app.route('/split-audio', methods=['POST'])
 def split_audio():
@@ -48,7 +49,6 @@ def split_audio():
         audio = np.repeat(audio[:, np.newaxis], 2, axis=1)
 
     # letting spleeter do the damn ting
-    separator = Separator('spleeter:4stems')
     prediction = separator.separate(audio)
 
     # magical place to hold our precious split audio files
