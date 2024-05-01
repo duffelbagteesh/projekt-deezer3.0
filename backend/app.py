@@ -63,7 +63,7 @@ def split_audio():
 
         # Setting split audio length to original audio length
         target_length = len(audio)
-        padded_data = np.pad(rescaled_data, ((0, target_length - len(rescaled_data)), (0, 0)), mode='constant')
+        padded_data = np.pad(data, ((0, target_length - len(data)), (0, 0)), mode='constant')
         truncated_data = padded_data[:target_length]
 
         # Export split audio file as WAV
