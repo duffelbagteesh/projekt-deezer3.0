@@ -46,6 +46,10 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     --mount=type=bind,source=requirements.txt,target=requirements.txt \
     python -m pip install -r requirements.txt
 
+# Download and extract Spleeter model
+RUN wget https://github.com/deezer/spleeter/releases/download/v1.4.0/4stems.tar.gz -P /root/.cache/spleeter && \
+    tar -xzf /root/.cache/spleeter/4stems.tar.gz -C /root/.cache/spleeter
+
 # Switch to the non-privileged user to run the application.
 USER appuser
 
