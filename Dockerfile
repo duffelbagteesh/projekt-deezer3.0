@@ -46,6 +46,9 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     --mount=type=bind,source=requirements.txt,target=requirements.txt \
     python -m pip install -r requirements.txt
 
+# Install wget
+RUN apt-get update && apt-get install -y wget
+
 # Download and extract Spleeter model
 RUN wget https://github.com/deezer/spleeter/releases/download/v1.4.0/4stems.tar.gz -P /root/.cache/spleeter && \
     tar -xzf /root/.cache/spleeter/4stems.tar.gz -C /root/.cache/spleeter
