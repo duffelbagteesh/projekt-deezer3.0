@@ -74,24 +74,5 @@ def split_audio():
     # Return the actual done split audio
     return jsonify(split_audio_files)
 
-
-# API metadata stuff that I had to look up
-@app.route('/metadata')
-def get_metadata():
-    metadata = {
-        'sample_rate': 44100,
-        'channels': 2
-    }
-    return jsonify(metadata)
-
-
-@app.route('/public/tracks/<filename>')
-def serve_audio(filename):
-    try:
-        return send_from_directory(split_audio_dir, filename)
-    except FileNotFoundError:
-        return "Audio file not found.", 404
-
-
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=80)
