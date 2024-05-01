@@ -99,11 +99,6 @@
         bassAudio.src = bassPath;
         instrumentsAudio.src = instrumentsPath;
 
-      fetch('/metadata')
-        .then(response => response.json())
-        .then(metadata => {
-          console.log(metadata)
-        });
     } catch (error) {
       console.error(error);
       loading.classList.add('d-none');
