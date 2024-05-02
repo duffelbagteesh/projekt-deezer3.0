@@ -18,9 +18,11 @@ WORKDIR /app
 
 # Install dependencies using a Debian mirror
 RUN apt-get update && \
-    apt-get install -y ffmpeg && \
+    apt-get install -y ffmpeg wget && \
     touch /etc/apt/sources.list && \
-    sed -i 's/deb.debian.org/ftp.us.debian.org/' /etc/apt/sources.list
+    sed -i 's/deb.debian.org/ftp.us.debian.org/' /etc/apt/sources.list && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 
 # Set the path for ffprobe
@@ -45,9 +47,6 @@ RUN adduser \
 RUN --mount=type=cache,target=/root/.cache/pip \
     --mount=type=bind,source=requirements.txt,target=requirements.txt \
     python -m pip install -r requirements.txt
-
-# Install wget
-RUN apt-get update && apt-get install -y wget
 
 # Download and extract Spleeter model
 RUN wget https://github.com/deezer/spleeter/releases/download/v1.4.0/4stems.tar.gz -P /root/.cache/spleeter && \

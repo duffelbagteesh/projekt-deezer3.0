@@ -29,7 +29,14 @@ def split_audio():
     # get uploaded audio file
     audio_file = request.files['audioFile']
 
-     # Check if the file is in WAV format
+     # Check if the file is too large
+    if len(audio_file.read()) > 50 * 1024 * 1024:  # 50 MB
+        return jsonify({'error': 'File is too large. Please upload a file smaller than 50 MB.'}), 400
+
+    # Reset file pointer to beginning
+    audio_file.seek(0)
+
+    # Check if the file is in WAV format
     if not audio_file.filename.lower().endswith('.wav'):
         return jsonify({'error': 'Invalid file format. Please upload a WAV file.'}), 400
     
