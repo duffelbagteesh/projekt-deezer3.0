@@ -35,9 +35,9 @@ def split_audio():
             os.remove(os.path.join('public/uploads', filename))
 
     # Delete the previously separated tracks
-    for filename in os.listdir('public/tracks/audio'):
+    for filename in os.listdir('public/tracks'):
         if filename.endswith('.wav'):
-            os.remove(os.path.join('public/tracks/audio', filename))
+            os.remove(os.path.join('public/tracks', filename))
 
      # Check if the file is too large
     if len(audio_file.read()) > 50 * 1024 * 1024:  # 50 MB
