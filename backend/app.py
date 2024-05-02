@@ -46,10 +46,10 @@ def split_audio():
 
     # Return the actual done split audio
     return jsonify({
-        'vocalsPath': '/public/tracks/audio_vocals.wav',
-        'drumsPath': '/public/tracks/audio_drums.wav',
-        'bassPath': '/public/tracks/audio_bass.wav',
-        'instrumentsPath': '/public/tracks/audio_other.wav',
+        'vocalsPath': '/public/tracks/output_vocals.wav',
+        'drumsPath': '/public/tracks/output_drums.wav',
+        'bassPath': '/public/tracks/output_bass.wav',
+        'instrumentsPath': '/public/tracks/output_other.wav',
     })
 
 
