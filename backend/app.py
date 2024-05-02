@@ -11,12 +11,6 @@ app = Flask(__name__, template_folder='../frontend/templates')
 split_audio_dir = os.path.join(os.getcwd(), 'public', 'tracks')
 app.config['upload_folder'] = os.path.join(os.getcwd(), 'public', 'uploads')
 
-def mp3_to_wav(mp3_path):
-    wav_path = mp3_path.replace(".mp3", ".wav")
-    audio = AudioSegment.from_mp3(mp3_path)
-    audio.export(wav_path, format="wav")
-    return wav_path
-
 
 @app.route('/')
 def index():
