@@ -29,6 +29,16 @@ def split_audio():
     # get uploaded audio file
     audio_file = request.files['audioFile']
 
+    # Delete the previously uploaded file
+    for filename in os.listdir('public/uploads'):
+        if filename.endswith('.wav'):
+            os.remove(os.path.join('public/uploads', filename))
+
+    # Delete the previously separated tracks
+    for filename in os.listdir('public/tracks/audio'):
+        if filename.endswith('.wav'):
+            os.remove(os.path.join('public/tracks/audio', filename))
+
      # Check if the file is too large
     if len(audio_file.read()) > 50 * 1024 * 1024:  # 50 MB
         return jsonify({'error': 'File is too large. Please upload a file smaller than 50 MB.'}), 400
