@@ -33,44 +33,24 @@ def split_audio():
     # get uploaded audio file
     audio_file = request.files['audioFile']
 
-    # Convert audio file to bytes
-    audio_bytes = io.BytesIO(audio_file.read())
-
-    # Convert MP3 to WAV using pydub
-    audio = AudioSegment.from_file(audio_bytes, format="mp3")
-    wav_bytes = io.BytesIO()
-    audio.export(wav_bytes, format="wav")
-
-    # Save the WAV file to the temporary directory
+     # Check if the file is in WAV format
+    if not audio_file.filename.lower().endswith('.wav'):
+        return jsonify({'error': 'Invalid file format. Please upload a WAV file.'}), 400
+    
+     # Save the WAV file to the temporary directory
     wav_path = os.path.join(app.config['upload_folder'], 'audio.wav')
-    with open(wav_path, 'wb') as f:
-        f.write(wav_bytes.getvalue())
+    audio_file.save(wav_path)
 
-    # Perform audio separation
-    prediction = separator.separate_to_file(wav_path, split_audio_dir)
-
-    # Get the sample rate of the audio
-    rate, _ = wavfile.read(wav_path)
-
-    # Export stemies to WAV files
-    split_audio_files = {}
-    for instrument, data in prediction.items():
-        # Rescaling?
-        data *= 32767.0
-        data = data.astype(np.int16)
-
-        # Setting split audio length to original audio length
-        target_length = len(audio)
-        padded_data = np.pad(data, ((0, target_length - len(data)), (0, 0)), mode='constant')
-        truncated_data = padded_data[:target_length]
-
-        # Export split audio file as WAV
-        track_file = os.path.join(split_audio_dir, f'output_{instrument}.wav')
-        wavfile.write(track_file, rate, truncated_data)
-        split_audio_files[instrument] = f'/public/tracks/output_{instrument}.wav'
+     # Perform audio separation
+    separator.separate_to_file(wav_path, split_audio_dir)
 
     # Return the actual done split audio
-    return jsonify(split_audio_files)
+    return jsonify({
+        'vocalsPath': '/public/tracks/audio_vocals.wav',
+        'drumsPath': '/public/tracks/audio_drums.wav',
+        'bassPath': '/public/tracks/audio_bass.wav',
+        'instrumentsPath': '/public/tracks/audio_other.wav',
+    })
 
 
 if __name__ == '__main__':
