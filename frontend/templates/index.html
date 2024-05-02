@@ -30,31 +30,19 @@
       <div class="row">
         <div class="col-md-6 mb-3">
           <h3>Vocals</h3>
-          <audio controls>
-            <source id="vocalsAudio" src="" type="audio/wav">
-            Your browser does not support the audio element.
-          </audio>
+          <audio id="vocalsAudio" src="" controls></audio>
         </div>
         <div class="col-md-6 mb-3">
           <h3>Drums</h3>
-          <audio controls>
-            <source id="drumsAudio" src="" type="audio/wav">
-            Your browser does not support the audio element.
-          </audio>
+          <audio id="drumsAudio" src="" controls></audio>
         </div>
         <div class="col-md-6 mb-3">
           <h3>Bass</h3>
-          <audio controls>
-            <source id="bassAudio" src="" type="audio/wav">
-            Your browser does not support the audio element.
-          </audio>
+          <audio id="bassAudio" src="" controls></audio>
         </div>
         <div class="col-md-6 mb-3">
           <h3>Other Instruments</h3>
-          <audio controls>
-            <source id="instrumentsAudio" src="" type="audio/wav">
-            Your browser does not support the audio element.
-          </audio>
+          <audio id="instrumentsAudio" src="" controls></audio>
         </div>
       </div>
     </div>
@@ -89,7 +77,7 @@
       results.classList.remove('d-none');
 
 
-      const vocalsAudio = document.querySelector('#vocalsAudio');
+        const vocalsAudio = document.querySelector('#vocalsAudio');
         const drumsAudio = document.querySelector('#drumsAudio');
         const bassAudio = document.querySelector('#bassAudio');
         const instrumentsAudio = document.querySelector('#instrumentsAudio');
