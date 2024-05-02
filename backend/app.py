@@ -18,7 +18,9 @@ def index():
 
 @app.route('/public/<path:filename>')
 def serve_static(filename):
-    return send_from_directory(os.path.join(os.getcwd(), 'public'), filename)
+    response = send_from_directory(os.path.join(os.getcwd(), 'public'), filename)
+    response.headers['Cache-Control'] = 'no-store'
+    return response
 
 separator = Separator('spleeter:4stems')
 
