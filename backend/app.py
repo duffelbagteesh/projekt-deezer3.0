@@ -29,6 +29,11 @@ def split_audio():
     # get uploaded audio file
     audio_file = request.files['audioFile']
 
+    # Delete the previously uploaded file
+    uploaded_file_path = os.path.join(app.config['upload_folder'], 'audio.wav')
+    if os.path.exists(uploaded_file_path):
+        os.remove(uploaded_file_path)
+
     # Delete the previously separated tracks
     if os.path.exists('public/tracks/audio'):
         for filename in os.listdir('public/tracks/audio'):
