@@ -82,6 +82,7 @@
         const bassAudio = document.querySelector('#bassAudio');
         const instrumentsAudio = document.querySelector('#instrumentsAudio');
 
+        const timestamp = new Date().getTime();
         vocalsAudio.src = vocalsPath + '?t=' + timestamp;
         drumsAudio.src = drumsPath + '?t=' + timestamp;
         bassAudio.src = bassPath + '?t=' + timestamp;
