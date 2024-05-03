@@ -10,7 +10,7 @@ import io
 app = Flask(__name__, template_folder='../frontend/templates')
 split_audio_dir = os.path.join(os.getcwd(), 'public', 'tracks')
 app.config['upload_folder'] = os.path.join(os.getcwd(), 'public', 'uploads')
-
+app.config['MAX_CONTENT_LENGTH'] = 32.1 * 1024 * 1024  # 32MB
 
 @app.route('/')
 def index():
