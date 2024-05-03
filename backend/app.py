@@ -1,16 +1,16 @@
 from flask import Flask, render_template, request, jsonify, send_from_directory
 import os
 from spleeter.separator import Separator
-from pydub import AudioSegment
-import numpy as np
-from scipy.io import wavfile
-import io
-
+from werkzeug.exceptions import RequestEntityTooLarge
 
 app = Flask(__name__, template_folder='../frontend/templates')
 split_audio_dir = os.path.join(os.getcwd(), 'public', 'tracks')
 app.config['upload_folder'] = os.path.join(os.getcwd(), 'public', 'uploads')
-app.config['MAX_CONTENT_LENGTH'] = 32.1 * 1024 * 1024  # 32MB
+app.config['MAX_CONTENT_LENGTH'] = 32.2 * 1024 * 1024  # 32MB
+
+@app.errorhandler(RequestEntityTooLarge)
+def handle_file_too_large(e):
+    return jsonify({'error': 'File is too large. Please upload a file smaller than 32 MB.'}), 413
 
 @app.route('/')
 def index():
@@ -39,10 +39,6 @@ def split_audio():
         for filename in os.listdir('public/tracks/audio'):
             if filename.endswith('.wav'):
                 os.remove(os.path.join('public/tracks/audio', filename))
-
-     # Check if the file is too large
-    if audio_file.content_length > 32.1 * 1024 * 1024:  # 32 MB
-        return jsonify({'error': 'File is too large. Please upload a file smaller than 32 MB.'}), 400
 
     # Reset file pointer to beginning
     audio_file.seek(0)
