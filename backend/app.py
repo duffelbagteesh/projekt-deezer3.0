@@ -41,8 +41,8 @@ def split_audio():
                 os.remove(os.path.join('public/tracks/audio', filename))
 
      # Check if the file is too large
-    if len(audio_file.read()) > 50 * 1024 * 1024:  # 50 MB
-        return jsonify({'error': 'File is too large. Please upload a file smaller than 50 MB.'}), 400
+    if audio_file.content_length > 32.1 * 1024 * 1024:  # 32 MB
+        return jsonify({'error': 'File is too large. Please upload a file smaller than 32 MB.'}), 400
 
     # Reset file pointer to beginning
     audio_file.seek(0)
