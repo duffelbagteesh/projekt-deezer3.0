@@ -82,10 +82,10 @@
         const bassAudio = document.querySelector('#bassAudio');
         const instrumentsAudio = document.querySelector('#instrumentsAudio');
 
-        vocalsAudio.src = vocalsPath;
-        drumsAudio.src = drumsPath;
-        bassAudio.src = bassPath;
-        instrumentsAudio.src = instrumentsPath;
+        vocalsAudio.src = vocalsPath + '?t=' + timestamp;
+        drumsAudio.src = drumsPath + '?t=' + timestamp;
+        bassAudio.src = bassPath + '?t=' + timestamp;
+        instrumentsAudio.src = instrumentsPath + '?t=' + timestamp;
 
     } catch (error) {
       console.error(error);
