@@ -1,7 +1,6 @@
 import os
 from flask import Flask, render_template, request, jsonify, send_from_directory, session, redirect, url_for
 import logging
-import tempfile
 from spleeter.separator import Separator
 from werkzeug.exceptions import RequestEntityTooLarge
 from googleapiclient.discovery import build
@@ -11,6 +10,10 @@ import yt_dlp
 import json
 from urllib.parse import urlparse, parse_qs
 import subprocess
+from functools import wraps
+import time
+from collections import defaultdict
+import threading
 
 port = int(os.environ.get('PORT', 80))
 
@@ -72,11 +75,23 @@ def extract_audio_from_youtube(youtube_url):
             'cookiefile': cookies_file,
             'quiet': False,
             'noplaylist': True,
+            'extractor_retries': 3,
             'http_headers': {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
                 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
                 'Accept-Language': 'en-us,en;q=0.5',
-            }
+                'Sec-Fetch-Mode': 'navigate',
+                'Sec-Fetch-User': '?1',
+                'Sec-Fetch-Site': 'same-origin',
+                'Sec-Fetch-Dest': 'document',
+                'Referer': 'https://www.youtube.com/',
+            },
+            # Add proxy support
+            'proxy': os.getenv('HTTP_PROXY', None),  # Will use system proxy if available
+            'source_address': '0.0.0.0',  # Use all available network interfaces
+            'sleep_interval': 1,  # Add a small delay between requests
+            'max_sleep_interval': 5,
+            'retries': 10,  # Increase retry attempts
         }
 
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -120,7 +135,32 @@ def serve_static(filename):
     response.headers['Cache-Control'] = 'no-store'
     return response
 
+# Rate limiting setup
+RATE_LIMIT = 1  # requests
+RATE_LIMIT_PERIOD = 60  # seconds
+request_counts = defaultdict(lambda: {'count': 0, 'reset_time': 0})
+request_lock = threading.Lock()
+
+def rate_limit(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        ip = request.remote_addr
+        current_time = time.time()
+        
+        with request_lock:
+            if current_time > request_counts[ip]['reset_time']:
+                request_counts[ip] = {'count': 0, 'reset_time': current_time + RATE_LIMIT_PERIOD}
+            
+            if request_counts[ip]['count'] >= RATE_LIMIT:
+                return jsonify({'error': 'Rate limit exceeded. Please try again later.'}), 429
+            
+            request_counts[ip]['count'] += 1
+            
+        return f(*args, **kwargs)
+    return decorated_function
+
 @app.route('/split-audio', methods=['POST'])
+@rate_limit
 def split_audio():
     youtube_url = request.form.get('youtubeUrl')
     audio_file = request.files.get('audioFile')
