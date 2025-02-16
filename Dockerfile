@@ -1,35 +1,37 @@
-# syntax=docker/dockerfile:1
-
-# Comments are provided throughout this file to help you get started.
-# If you need more help, visit the Dockerfile reference guide at
-# https://docs.docker.com/go/dockerfile-reference/
-
 ARG PYTHON_VERSION=3.8
 FROM python:${PYTHON_VERSION}-slim as base
 
-# Prevents Python from writing pyc files.
 ENV PYTHONDONTWRITEBYTECODE=1
-
-# Keeps Python from buffering stdout and stderr to avoid situations where
-# the application crashes without emitting any logs due to buffering.
 ENV PYTHONUNBUFFERED=1
+ENV PORT=8080
 
 WORKDIR /app
 
-# Install dependencies using a Debian mirror
+# Install system dependencies
 RUN apt-get update && \
-    apt-get install -y ffmpeg wget && \
-    touch /etc/apt/sources.list && \
-    sed -i 's/deb.debian.org/ftp.us.debian.org/' /etc/apt/sources.list && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
+    apt-get install -y \
+    ffmpeg \
+    wget \
+    python3-dev \
+    build-essential \
+    curl \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Set the path for ffprobe
 ENV PATH="/usr/bin:${PATH}"
 
-# Create a non-privileged user that the app will run under.
-# See https://docs.docker.com/go/dockerfile-user-best-practices/
+# Create required directories with proper permissions
+RUN mkdir -p /app/public/uploads \
+    /app/public/tracks \
+    /app/downloads \
+    /app/downloads/cookies && \
+    chmod 777 /app/public/uploads \
+    /app/public/tracks \
+    /app/downloads \
+    /app/downloads/cookies
+
+# Create a non-privileged user
 ARG UID=10001
 RUN adduser \
     --disabled-password \
@@ -40,35 +42,28 @@ RUN adduser \
     --uid "${UID}" \
     appuser
 
-# Download dependencies as a separate step to take advantage of Docker's caching.
-# Leverage a cache mount to /root/.cache/pip to speed up subsequent builds.
-# Leverage a bind mount to requirements.txt to avoid having to copy them into
-# into this layer.
+# Download dependencies
+COPY requirements.txt .
 RUN --mount=type=cache,target=/root/.cache/pip \
-    --mount=type=bind,source=requirements.txt,target=requirements.txt \
     python -m pip install -r requirements.txt
 
 # Download and extract Spleeter model
 RUN wget https://github.com/deezer/spleeter/releases/download/v1.4.0/4stems.tar.gz -P /root/.cache/spleeter && \
     tar -xzf /root/.cache/spleeter/4stems.tar.gz -C /root/.cache/spleeter
 
-# Switch to the non-privileged user to run the application.
+# Copy the source code
+COPY . .
+
+# Set proper permissions for all app directories
+RUN chown -R appuser:appuser /app
+
+# Switch to non-privileged user
 USER appuser
 
-# Copy the source code into the container.
-COPY . /app
+# Add healthcheck
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:${PORT}/ || exit 1
 
-# Expose the port that the application listens on.
-EXPOSE 80
+EXPOSE ${PORT}
 
-# Run the application.
-CMD ["python", "backend/app.py"]
-
-# Create a new image for setting permissions
-FROM base AS permissions
-
-USER root
-
-# Set permissions for the /app/public/uploads directory
-RUN mkdir -p /app/public/uploads && chmod 777 /app/public/uploads
-
+CMD gunicorn --bind 0.0.0.0:${PORT} backend.app:app

@@ -4,3 +4,10 @@ spleeter==2.4.0
 MarkupSafe==1.1.1
 pydub==0.25.1
 ffmpeg-python==0.2.0
+pytube==15.0.0
+yt-dlp==2024.10.22
+google-api-python-client
+google-auth-httplib2==0.1.0
+google-auth-oauthlib
+google-auth
+gunicorn==20.1.0
