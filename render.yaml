@@ -2,13 +2,25 @@ services:
   - type: web
     name: deezer-splitter
     env: docker
-    plan: starter
+    plan: standard
     dockerfilePath: ./Dockerfile
     dockerContext: .
     envVars:
       - key: PORT
         value: 8080
+      - key: GUNICORN_TIMEOUT
+        value: 300
+      - key: WORKER_TIMEOUT
+        value: 300
+      - key: MEMORY_THRESHOLD
+        value: 90
+      - key: MAX_UPLOAD_SIZE
+        value: 32100000
     disk:
       name: uploads
       mountPath: /app/public
-      sizeGB: 1
+      sizeGB: 2
+    healthCheckPath: /health
+    scaling:
+      minInstances: 1
+      maxInstances: 1
