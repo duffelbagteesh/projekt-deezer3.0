@@ -16,6 +16,14 @@ from datetime import datetime
 from functools import wraps
 import traceback
 
+app = Flask(__name__, template_folder='../frontend/templates')
+app.secret_key = 'your_secret_key'
+split_audio_dir = os.path.join(os.getcwd(), 'public', 'tracks')
+app.config['upload_folder'] = os.path.join(os.getcwd(), 'public', 'uploads')
+app.config['MAX_CONTENT_LENGTH'] = 32.2 * 1024 * 1024  # 32MB
+
+separator = Separator('spleeter:4stems')
+
 port = int(os.environ.get('PORT', 8080))
 
 log_dir = "logs"
@@ -109,15 +117,6 @@ def health():
         'cpu_usage': f"{cpu_percent}%",
         'timestamp': datetime.now().isoformat()
     })
-
-
-app = Flask(__name__, template_folder='../frontend/templates')
-app.secret_key = 'your_secret_key'
-split_audio_dir = os.path.join(os.getcwd(), 'public', 'tracks')
-app.config['upload_folder'] = os.path.join(os.getcwd(), 'public', 'uploads')
-app.config['MAX_CONTENT_LENGTH'] = 32.2 * 1024 * 1024  # 32MB
-
-separator = Separator('spleeter:4stems')
 
 def process_audio_with_spleeter(audio_path):
     """
