@@ -16,7 +16,10 @@ from datetime import datetime
 from functools import wraps
 import traceback
 
-port = int(os.environ.get('PORT', 80))
+port = int(os.environ.get('PORT', 8080))
+
+log_dir = "logs"
+os.makedirs(log_dir, exist_ok=True)
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -343,4 +346,4 @@ def process_with_spleeter(audio_path):
         
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=80)
+    app.run(host='0.0.0.0', port=port)
