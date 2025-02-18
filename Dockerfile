@@ -1,10 +1,9 @@
-ARG PYTHON_VERSION=3.9
+ARG PYTHON_VERSION=3.8
 FROM python:${PYTHON_VERSION}-slim as base
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV PORT=8080
-ENV TF_CPP_MIN_LOG_LEVEL=2
 
 WORKDIR /app
 
@@ -67,12 +66,4 @@ HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
 
 EXPOSE ${PORT}
 
-# Run with optimized settings
-CMD gunicorn --bind 0.0.0.0:${PORT} \
-    --workers 1 \
-    --threads 4 \
-    --timeout 300 \
-    --worker-class gthread \
-    --max-requests 10 \
-    --max-requests-jitter 3 \
-    app:app
+CMD gunicorn --bind 0.0.0.0:${PORT} backend.app:app
