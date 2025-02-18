@@ -3,11 +3,7 @@ from flask import Flask, render_template, request, jsonify, send_from_directory,
 import logging
 from spleeter.separator import Separator
 from werkzeug.exceptions import RequestEntityTooLarge
-from googleapiclient.discovery import build
-from google_auth_oauthlib.flow import InstalledAppFlow
-from google.oauth2.credentials import Credentials
 import yt_dlp
-import json
 from urllib.parse import urlparse, parse_qs
 import subprocess
 from functools import wraps
