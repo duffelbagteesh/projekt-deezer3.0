@@ -68,6 +68,10 @@ RUN chmod -R 777 /app
 # Switch to non-privileged user
 USER appuser
 
+# Add healthcheck
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:${PORT}/ || exit 1
+
 EXPOSE ${PORT:-8080}
 
 # Use Railway's PORT environment variable
