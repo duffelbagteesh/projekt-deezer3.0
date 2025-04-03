@@ -3,10 +3,10 @@ FROM python:${PYTHON_VERSION}-slim as base
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
+ENV PORT=8080
 
 WORKDIR /app
 
-ENV PORT=8080
 
 # Install system dependencies
 RUN apt-get update && \
@@ -26,11 +26,10 @@ ENV PATH="/usr/bin:${PATH}"
 RUN mkdir -p /app/public/uploads \
     /app/public/tracks \
     /app/downloads \
-    /app/downloads/cookies && \
-    chmod 777 /app/public/uploads \
-    /app/public/tracks \
-    /app/downloads \
-    /app/downloads/cookies
+    /app/downloads/cookies \
+    /app/logs \
+    /app/models && \
+    chmod -R 777 /app/public /app/downloads /app/logs 
 
 # Create a non-privileged user
 ARG UID=10001
@@ -47,14 +46,24 @@ RUN adduser \
 COPY requirements.txt .
 RUN python -m pip install -r requirements.txt
 
+# Download and install Spleeter
+RUN wget https://github.com/deezer/spleeter/releases/download/v1.4.0/4stems.tar.gz -P /app/models && \
+    tar -xzf /app/models/4stems.tar.gz -C /app/models && \
+    tar -xzf /app/models/4stems.tar.gz -C /app/models && \
+    rm /app/models/4stems.tar.gz
+
 # Download and extract Spleeter model
 ENV SPLEETER_MODELS_PATH=/app/models
+
+# copy requirements and install
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the source code
 COPY . .
 
-# Set proper permissions for all app directories
-RUN chown -R appuser:appuser /app
+# Set very permissive permissions for the app directory
+RUN chmod -R 777 /app
 
 # Switch to non-privileged user
 USER appuser
