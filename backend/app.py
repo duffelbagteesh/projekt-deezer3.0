@@ -395,6 +395,9 @@ def process_with_spleeter(audio_path):
         logger.error(f"Error in process_with_spleeter: {str(e)}\n{traceback.format_exc()}")
         raise
         
+@app.route('/health')
+def health():
+    return 'OK', 200
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=port)
