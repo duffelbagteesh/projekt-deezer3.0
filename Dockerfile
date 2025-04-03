@@ -68,11 +68,7 @@ RUN chmod -R 777 /app
 # Switch to non-privileged user
 USER appuser
 
-# Add healthcheck
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:${PORT}/ || exit 1
-
-EXPOSE ${PORT}
+EXPOSE ${PORT:-8080}
 
 # Use Railway's PORT environment variable
 CMD gunicorn --bind 0.0.0.0:${PORT:-8080} backend.app:app
