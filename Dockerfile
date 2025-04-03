@@ -7,7 +7,6 @@ ENV PORT=8080
 
 WORKDIR /app
 
-
 # Install system dependencies
 RUN apt-get update && \
     apt-get install -y \
@@ -15,9 +14,9 @@ RUN apt-get update && \
     wget \
     python3-dev \
     build-essential \
-    curl && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    curl \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Set the path for ffprobe
 ENV PATH="/usr/bin:${PATH}"
@@ -26,10 +25,11 @@ ENV PATH="/usr/bin:${PATH}"
 RUN mkdir -p /app/public/uploads \
     /app/public/tracks \
     /app/downloads \
-    /app/downloads/cookies \
-    /app/logs \
-    /app/models && \
-    chmod -R 777 /app/public /app/downloads /app/logs 
+    /app/downloads/cookies && \
+    chmod 777 /app/public/uploads \
+    /app/public/tracks \
+    /app/downloads \
+    /app/downloads/cookies
 
 # Create a non-privileged user
 ARG UID=10001
@@ -44,26 +44,18 @@ RUN adduser \
 
 # Download dependencies
 COPY requirements.txt .
-RUN python -m pip install -r requirements.txt
-
-# Download and install Spleeter
-RUN wget https://github.com/deezer/spleeter/releases/download/v1.4.0/4stems.tar.gz -P /app/models && \
-    tar -xzf /app/models/4stems.tar.gz -C /app/models && \
-    tar -xzf /app/models/4stems.tar.gz -C /app/models && \
-    rm /app/models/4stems.tar.gz
+RUN --mount=type=cache,target=/root/.cache/pip \
+    python -m pip install -r requirements.txt
 
 # Download and extract Spleeter model
-ENV SPLEETER_MODELS_PATH=/app/models
-
-# copy requirements and install
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN wget https://github.com/deezer/spleeter/releases/download/v1.4.0/4stems.tar.gz -P /root/.cache/spleeter && \
+    tar -xzf /root/.cache/spleeter/4stems.tar.gz -C /root/.cache/spleeter
 
 # Copy the source code
 COPY . .
 
-# Set very permissive permissions for the app directory
-RUN chmod -R 777 /app
+# Set proper permissions for all app directories
+RUN chown -R appuser:appuser /app
 
 # Switch to non-privileged user
 USER appuser
@@ -72,7 +64,6 @@ USER appuser
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:${PORT}/ || exit 1
 
-EXPOSE ${PORT:-8080}
+EXPOSE ${PORT}
 
-# Use Railway's PORT environment variable
-CMD gunicorn --bind 0.0.0.0:${PORT:-8080} backend.app:app
+CMD gunicorn --bind 0.0.0.0:${PORT} backend.app:app

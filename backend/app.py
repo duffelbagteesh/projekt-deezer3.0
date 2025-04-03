@@ -15,46 +15,12 @@ import psutil
 from datetime import datetime
 from functools import wraps
 import traceback
-from pathlib import Path
 
 app = Flask(__name__, template_folder='../frontend/templates')
-
-# Ensure base directories exist
-def ensure_directories():
-    base_dir = Path(os.getcwd())
-
-    # define directory paths
-    upload_dir = base_dir / 'public' / 'uploads'
-    tracks_dir = base_dir / 'public' / 'tracks'
-    downloads_dir = base_dir / 'downloads'
-    cookies_dir = downloads_dir / 'cookies'
-    logs_dir = base_dir / 'logs'
-
-    # create directories if they don't exist
-    for directory in [upload_dir, tracks_dir, downloads_dir, cookies_dir, logs_dir]:
-        directory.mkdir(parents=True, exist_ok=True)
-
-    # set permissions for directories (for railway)
-    for directory in [upload_dir, tracks_dir, downloads_dir]:
-        os.system(f"chmod -R 777 {directory}")
-    return base_dir, upload_dir, tracks_dir, downloads_dir, cookies_dir
-
-# call this function to set up directories
-base_dir, upload_dir, tracks_dir, downloads_dir, cookies_dir = ensure_directories()
-
-# update the app config
-
 app.secret_key = 'your_secret_key'
-split_audio_dir = str(tracks_dir)
-app.config['upload_folder'] = str(upload_dir)
+split_audio_dir = os.path.join(os.getcwd(), 'public', 'tracks')
+app.config['upload_folder'] = os.path.join(os.getcwd(), 'public', 'uploads')
 app.config['MAX_CONTENT_LENGTH'] = 32.2 * 1024 * 1024  # 32MB
-
-# debug directory structure
-print(f"Working Directory: {os.getcwd()}")
-print(f"Upload folder: {app.config['upload_folder']}")
-print(f"Tracks folder: {split_audio_dir}")
-print(f"Download folder: {downloads_dir}")
-
 
 separator = Separator('spleeter:4stems')
 
@@ -238,23 +204,13 @@ def extract_audio_from_youtube(youtube_url):
 def clean_previous_data():
     uploaded_file_path = os.path.join(app.config['upload_folder'], 'audio.wav')
     if os.path.exists(uploaded_file_path):
-        try:
-            os.remove(uploaded_file_path)
-            logger.info(f"Removed uploaded file: {uploaded_file_path}")
-        except Exception as e:
-            logger.error(f"Failed to remove file {uploaded_file_path}: {str(e)}")
+        os.remove(uploaded_file_path)
 
-    track_dir = os.path.join(split_audio_dir, 'audio')
+    track_dir = os.path.join('public', 'tracks', 'audio')
     if os.path.exists(track_dir):
-        try:
-            for filename in os.listdir(track_dir):
-                if filename.endswith('.wav'):
-                    file_path = os.path.join(track_dir, filename)
-                    os.remove(file_path)
-                    logger.info(f"Removed file: {file_path}")
-        except Exception as e:
-            logger.error(f"Failed to clean track directory {track_dir}: {str(e)}")
-
+        for filename in os.listdir(track_dir):
+            if filename.endswith('.wav'):
+                os.remove(os.path.join(track_dir, filename))
 
 @app.errorhandler(RequestEntityTooLarge)
 def handle_file_too_large(e):
@@ -344,14 +300,6 @@ def split_audio():
                 }), 400
 
             wav_path = os.path.join(app.config['upload_folder'], 'audio.wav')
-            os.makedirs(os.path.dirname(wav_path), exist_ok=True)  # Ensure directory exists
-
-            #debug info
-            logger.info(f"Saving uploaded file to: {wav_path}")
-            logger.info(f"Directory exists: {os.path.exists(os.path.dirname(wav_path))}")
-            logger.info(f"Directory writable: {os.access(os.path.dirname(wav_path), os.W_OK)}")
-
-            # Save the uploaded file
             audio_file.save(wav_path)
 
             try:
@@ -394,7 +342,7 @@ def process_with_spleeter(audio_path):
     except Exception as e:
         logger.error(f"Error in process_with_spleeter: {str(e)}\n{traceback.format_exc()}")
         raise
-
+        
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=port)
