@@ -6,6 +6,8 @@ ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
+ENV PORT=8080
+
 # Install system dependencies
 RUN apt-get update && \
     apt-get install -y \
@@ -43,12 +45,10 @@ RUN adduser \
 
 # Download dependencies
 COPY requirements.txt .
-RUN --mount=type=cache,id=pipcache,target=/root/.cache/pip \
-    python -m pip install -r requirements.txt
+RUN python -m pip install -r requirements.txt
 
 # Download and extract Spleeter model
-RUN wget https://github.com/deezer/spleeter/releases/download/v1.4.0/4stems.tar.gz -P /root/.cache/spleeter && \
-    tar -xzf /root/.cache/spleeter/4stems.tar.gz -C /root/.cache/spleeter
+ENV SPLEETER_MODELS_PATH=/app/models
 
 # Copy the source code
 COPY . .
@@ -66,4 +66,4 @@ HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
 EXPOSE ${PORT}
 
 # Use Railway's PORT environment variable
-CMD gunicorn --bind 0.0.0.0:${PORT} backend.app:app
+CMD gunicorn --bind 0.0.0.0:${PORT:-8080} backend.app:app
