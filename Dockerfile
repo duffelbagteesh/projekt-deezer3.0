@@ -3,7 +3,6 @@ FROM python:${PYTHON_VERSION}-slim as base
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
-ENV PORT=8080
 
 WORKDIR /app
 
@@ -66,4 +65,5 @@ HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
 
 EXPOSE ${PORT}
 
+# Use Railway's PORT environment variable
 CMD gunicorn --bind 0.0.0.0:${PORT} backend.app:app
