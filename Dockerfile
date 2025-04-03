@@ -44,7 +44,7 @@ RUN adduser \
 
 # Download dependencies
 COPY requirements.txt .
-RUN --mount=type=cache,target=/root/.cache/pip \
+RUN --mount=type=cache,id=pipcache,target=/root/.cache/pip \
     python -m pip install -r requirements.txt
 
 # Download and extract Spleeter model
