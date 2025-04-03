@@ -13,9 +13,9 @@ RUN apt-get update && \
     wget \
     python3-dev \
     build-essential \
-    curl \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    curl && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Set the path for ffprobe
 ENV PATH="/usr/bin:${PATH}"
@@ -43,7 +43,7 @@ RUN adduser \
 
 # Download dependencies
 COPY requirements.txt .
-RUN --mount=type=cache,source=pipcache,target=/root/.cache/pip \
+RUN --mount=type=cache,source=cache-pipcache,target=/root/.cache/pip \
     python -m pip install -r requirements.txt
 
 # Download and extract Spleeter model
