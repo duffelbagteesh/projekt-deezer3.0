@@ -183,7 +183,7 @@ def split_audio():
             os.makedirs(output_dir, exist_ok=True)
             
              # Instantiate Separator on-demand
-            separator = Separator('spleeter:2stems')
+            separator = Separator('spleeter:4stems')
             separator.separate_to_file(temp_file_path, split_audio_dir)
             
             os.remove(temp_file_path)
@@ -206,7 +206,7 @@ def split_audio():
         audio_file.save(wav_path)
 
         # Instantiate Separator on-demand
-        separator = Separator('spleeter:2stems')
+        separator = Separator('spleeter:4stems')
         separator.separate_to_file(wav_path, split_audio_dir)
 
         return jsonify({
